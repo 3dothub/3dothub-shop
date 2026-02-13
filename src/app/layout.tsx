@@ -35,7 +35,7 @@ export default function RootLayout({
           <Providers>
             <div className="min-h-dvh">
               <Header />
-              <main className="w-full px-0 pb-12">
+              <main className="w-full px-0 py-0 md:px-0 md:py-0">
                 {children}
               </main>
             </div>

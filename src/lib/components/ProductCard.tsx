@@ -5,7 +5,6 @@ import Image from "next/image";
 import type { Product } from "@/lib/types/product";
 import { addToCart } from "@/lib/redux/slice/cartSlice";
 import { useAppDispatch } from "@/lib/redux/hooks";
-import { siteConfig } from "@/lib/constant/shop";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -16,6 +15,7 @@ const formatCurrency = (value: number) =>
 
 export default function ProductCard({ product }: { product: Product }) {
   const dispatch = useAppDispatch();
+  const productImage = product.imageUrl?.trim();
 
   return (
     <Card
@@ -36,13 +36,19 @@ export default function ProductCard({ product }: { product: Product }) {
         <span className="absolute left-3 top-3 rounded-full bg-(--accent) px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-(--app-fg)">
           New
         </span>
-        <Image
-          src={product.imageUrl ?? siteConfig.defaultImage}
-          alt={product.title}
-          width={200}
-          height={200}
-          className="h-28 w-28 object-contain"
-        />
+        {productImage ? (
+          <Image
+            src={productImage}
+            alt={product.title}
+            width={200}
+            height={200}
+            className="h-28 w-28 object-contain"
+          />
+        ) : (
+          <div className="flex h-28 w-28 items-center justify-center rounded-xl bg-(--surface-strong) text-xs text-(--muted)">
+            No image
+          </div>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2">
         <div>
