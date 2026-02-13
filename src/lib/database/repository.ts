@@ -343,7 +343,7 @@ export const getStorefrontData = async (): Promise<StorefrontResponse> => {
     `${subCategories.length}+ sub-categories`,
   ];
 
-  const siteName = "3DotWraps";
+  const siteName = "3Dothub";
   const topBannerText =
     `${products.length}+ PRODUCTS • ${shopCategories.length}+ CATEGORIES • FAST DELIVERY • SECURE CHECKOUT`;
   const navLinks = [

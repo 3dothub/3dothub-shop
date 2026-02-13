@@ -3,11 +3,21 @@ import { getProducts, getShopCategories, getSpecialOccasions } from "@/lib/datab
 const cardClass = "rounded-2xl border border-(--border) bg-(--surface) p-4 md:p-5";
 
 export default async function AdminDashboardPage() {
-  const [products, categories, occasions] = await Promise.all([
-    getProducts(),
-    getShopCategories(),
-    getSpecialOccasions(),
-  ]);
+  let products: Record<string, unknown>[] = [];
+  let categories: Record<string, unknown>[] = [];
+  let occasions: Record<string, unknown>[] = [];
+
+  try {
+    [products, categories, occasions] = await Promise.all([
+      getProducts(),
+      getShopCategories(),
+      getSpecialOccasions(),
+    ]);
+  } catch {
+    products = [];
+    categories = [];
+    occasions = [];
+  }
 
   const stats = [
     { label: "Products", value: products.length },

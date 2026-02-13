@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "antd/dist/reset.css";
 import "./globals.css";
 import Providers from "@/app/providers";
 import AntdRegistryWrapper from "@/app/antd-registry";
 import Header from "@/lib/components/Header";
+import InstallPrompt from "@/lib/components/InstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +17,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
 export const metadata: Metadata = {
-  title: "3DotWraps",
-  description: "Gift shop landing page",
+  title: "DotWraps",
+  description: "Premium Personalized Gifts",
+  manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f766e",
 };
 
 export default function RootLayout({
@@ -37,6 +44,7 @@ export default function RootLayout({
               <Header />
               <main className="w-full px-0 py-0 md:px-0 md:py-0">
                 {children}
+                  <InstallPrompt />
               </main>
             </div>
           </Providers>

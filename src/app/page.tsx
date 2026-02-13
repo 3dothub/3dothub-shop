@@ -6,12 +6,17 @@ import OccasionRecipientSection from "@/lib/components/home/OccasionRecipientSec
 import ProductShowcaseSection from "@/lib/components/home/ProductShowcaseSection";
 import ComboBudgetCategorySection from "@/lib/components/home/ComboBudgetCategorySection";
 import GiftFooter from "@/lib/components/home/GiftFooter";
+import HomePageSkeleton from "@/lib/components/home/HomePageSkeleton";
 import useScrollReveal from "@/lib/hooks/useScrollReveal";
 import { useGetStorefrontQuery } from "@/lib/redux/endpoints/productsApi";
 
 export default function Home() {
   useScrollReveal();
-  const { data } = useGetStorefrontQuery();
+  const { data, isLoading } = useGetStorefrontQuery();
+
+  if (isLoading && !data) {
+    return <HomePageSkeleton />;
+  }
 
   const dynamicOccasionCards = data?.occasionCards;
   const dynamicTopBannerText = data?.topBannerText;
