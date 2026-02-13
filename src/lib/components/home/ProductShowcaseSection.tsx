@@ -25,13 +25,13 @@ export default function ProductShowcaseSection({
   return (
     <section className="reveal w-full" data-reveal>
       <SectionHeading title={title} subtitle={subtitle} action={action} />
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3">
         {products.map((item) => (
           <article
             key={item.id ?? item.title}
-            className="group overflow-hidden rounded-2xl border border-(--border) bg-(--surface) transition duration-300 hover:-translate-y-1"
+            className="group overflow-hidden rounded-xl border border-(--border) bg-(--surface) transition duration-300 hover:-translate-y-1 md:rounded-2xl"
           >
-            <div className="relative h-52 overflow-hidden">
+            <div className="relative h-36 overflow-hidden md:h-52">
               {item.image || fallbackImage ? (
                 <Image
                   src={item.image || fallbackImage || ""}
@@ -44,15 +44,15 @@ export default function ProductShowcaseSection({
                   No image
                 </div>
               )}
-              <div className="absolute left-3 top-3 rounded-full bg-(--accent) px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+              <div className="absolute left-2 top-2 rounded-full bg-(--accent) px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white md:left-3 md:top-3 md:px-2 md:py-1 md:text-[10px]">
                 {item.discount ?? "Popular"}
               </div>
             </div>
-            <div className="space-y-2 p-4">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-(--muted)">{item.category}</p>
-              <h3 className="text-base font-semibold text-(--app-fg)">{item.title}</h3>
+            <div className="space-y-1.5 p-3 md:space-y-2 md:p-4">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-(--muted) md:text-[11px] md:tracking-[0.22em]">{item.category}</p>
+              <h3 className="text-sm font-semibold text-(--app-fg) md:text-base">{item.title}</h3>
               <div className="flex items-center gap-2">
-                <span className="text-base font-semibold text-(--app-fg)">{formatPrice(item.price)}</span>
+                <span className="text-sm font-semibold text-(--app-fg) md:text-base">{formatPrice(item.price)}</span>
                 {item.strike ? (
                   <span className="text-xs text-(--muted) line-through">{formatPrice(item.strike)}</span>
                 ) : null}
