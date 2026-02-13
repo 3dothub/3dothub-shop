@@ -53,7 +53,7 @@ export default function HeroSection({
                 <p className="text-lg opacity-80 max-w-sm mb-8">
                   {slide.description}
                 </p>
-                <button className="rounded-md bg-(--accent) px-8 py-3 font-medium text-white transition-transform hover:scale-105 active:scale-95">
+                <button className="rounded-md bg-(--accent) px-8 py-3 font-medium text-red transition-transform hover:scale-105 active:scale-95">
                   Shop Collection
                 </button>
               </div>

@@ -3,7 +3,14 @@ import { getProducts } from "@/lib/database/repository";
 const toNumber = (value: unknown) => Number(value ?? 0) || 0;
 
 export default async function AdminProductsPage() {
-  const products = await getProducts();
+  let products: Record<string, unknown>[] = [];
+
+  try {
+    products = await getProducts();
+  } catch {
+    products = [];
+  }
+
   const rows = products.slice(0, 50);
 
   return (
@@ -12,7 +19,7 @@ export default async function AdminProductsPage() {
       <p className="mt-1 text-sm text-(--muted)">Maintain your product catalog.</p>
 
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-180 text-left text-sm">
           <thead>
             <tr className="border-b border-(--border) text-(--muted)">
               <th className="py-2 pr-4">Name</th>

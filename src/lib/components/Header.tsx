@@ -22,11 +22,12 @@ export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const { data } = useGetStorefrontQuery();
   const navLinks = data?.navLinks ?? [];
-  const siteName = data?.siteName ?? "Store";
+  const siteName = data?.siteName ?? "3DotWraps";
   const headerSections = useMemo(() => data?.headerSections ?? [], [data?.headerSections]);
   const [hoveredSectionId, setHoveredSectionId] = useState("");
   const [hoveredSubSection, setHoveredSubSection] = useState("");
   const [role, setRole] = useState<"admin" | "user">("user");
+  const [isDesktopView, setIsDesktopView] = useState(false);
   const isAdmin = role === "admin";
 
   useEffect(() => {
@@ -37,6 +38,20 @@ export default function Header() {
     };
 
     void loadRole();
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    const syncDesktopView = () => {
+      setIsDesktopView(mediaQuery.matches);
+    };
+
+    syncDesktopView();
+    mediaQuery.addEventListener("change", syncDesktopView);
+
+    return () => {
+      mediaQuery.removeEventListener("change", syncDesktopView);
+    };
   }, []);
 
   const toggleRole = async () => {
@@ -153,7 +168,7 @@ export default function Header() {
         </div>
       </div>
 
-      {headerSections.length > 0 ? (
+      {headerSections.length > 0 && isDesktopView ? (
         <div
           className="relative hidden border-t border-(--border) bg-(--glass) backdrop-blur md:block"
           onMouseLeave={() => setHoveredSectionId("")}
