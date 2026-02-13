@@ -2,14 +2,14 @@
 
 import { useEffect } from "react";
 
-export default function useScrollReveal(deps: unknown[] = []) {
+export default function useScrollReveal() {
   useEffect(() => {
-    const elements = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-reveal]")
-    );
+    const observed = new WeakSet<HTMLElement>();
+    const getElements = () =>
+      Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
 
     if (!("IntersectionObserver" in window)) {
-      elements.forEach((el) => el.classList.add("is-visible"));
+      getElements().forEach((el) => el.classList.add("is-visible"));
       return;
     }
 
@@ -25,8 +25,31 @@ export default function useScrollReveal(deps: unknown[] = []) {
       { threshold: 0.15 }
     );
 
-    elements.forEach((el) => observer.observe(el));
+    const observeElements = () => {
+      getElements().forEach((el) => {
+        if (observed.has(el) || el.classList.contains("is-visible")) {
+          return;
+        }
 
-    return () => observer.disconnect();
-  }, deps);
+        observed.add(el);
+        observer.observe(el);
+      });
+    };
+
+    observeElements();
+
+    const mutationObserver = new MutationObserver(() => {
+      observeElements();
+    });
+
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      mutationObserver.disconnect();
+      observer.disconnect();
+    };
+  }, []);
 }
