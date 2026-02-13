@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Badge, Button } from "antd";
 import {
   SearchOutlined,
@@ -7,24 +8,89 @@ import {
   UserOutlined,
   HeartOutlined,
   MoonOutlined,
-  GiftOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
+import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { navLinks, siteConfig } from "@/lib/constant/shop";
 import { useTheme } from "@/lib/context/ThemeContext";
+import { useGetStorefrontQuery } from "@/lib/redux/endpoints/productsApi";
 
 export default function Header() {
   const totalItems = useAppSelector((state) =>
     state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
   );
   const { theme, toggleTheme } = useTheme();
+  const { data } = useGetStorefrontQuery();
+  const navLinks = data?.navLinks ?? [];
+  const siteName = data?.siteName ?? "Store";
+  const headerSections = useMemo(() => data?.headerSections ?? [], [data?.headerSections]);
+  const [hoveredSectionId, setHoveredSectionId] = useState("");
+  const [hoveredSubSection, setHoveredSubSection] = useState("");
+  const [role, setRole] = useState<"admin" | "user">("user");
+  const isAdmin = role === "admin";
+
+  useEffect(() => {
+    const loadRole = async () => {
+      const response = await fetch("/api/auth/role", { cache: "no-store" });
+      const payload = (await response.json()) as { role?: "admin" | "user" };
+      setRole(payload.role === "admin" ? "admin" : "user");
+    };
+
+    void loadRole();
+  }, []);
+
+  const toggleRole = async () => {
+    const nextRole = isAdmin ? "user" : "admin";
+    const response = await fetch("/api/auth/role", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role: nextRole }),
+    });
+
+    if (response.ok) {
+      setRole(nextRole);
+    }
+  };
+
+  const resolvedSectionId =
+    headerSections.some((item) => item.id === hoveredSectionId)
+      ? hoveredSectionId
+      : "";
+
+  const activeSection = useMemo(
+    () => headerSections.find((item) => item.id === resolvedSectionId),
+    [headerSections, resolvedSectionId]
+  );
+
+  const resolvedSubSection =
+    activeSection?.subSections?.includes(hoveredSubSection)
+      ? hoveredSubSection
+      : (activeSection?.subSections?.[0] ?? "");
+
+  const relatedSubSections = useMemo(() => {
+    if (!activeSection?.subSections?.length) {
+      return [];
+    }
+
+    const selectedIndex = Math.max(
+      0,
+      activeSection.subSections.indexOf(resolvedSubSection)
+    );
+
+    return activeSection.subSections.slice(selectedIndex, selectedIndex + 6);
+  }, [activeSection, resolvedSubSection]);
+
+  const visibleSubSections = useMemo(
+    () => activeSection?.subSections?.slice(0, 7) ?? [],
+    [activeSection]
+  );
 
   return (
-    <header className="sticky top-0 z-20 border-b border-(--border) bg-(--glass) backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-3 py-1">
+    <header className="sticky top-0 z-20 border-b border-(--border) bg-(--surface)">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-2">
         <div className="flex items-center gap-6 text-sm text-(--muted)">
           <span className="text-base font-semibold tracking-tight text-(--app-fg)">
-            #DotWraps
+            {siteName}
           </span>
           <div className="hidden items-center gap-6 md:flex">
             {navLinks.map((link) => (
@@ -40,6 +106,37 @@ export default function Header() {
             theme === "dark" ? "text-white" : "text-(--muted)"
           }`}
         >
+          {isAdmin ? (
+            <div className="hidden items-center gap-2 lg:flex">
+              <Link
+                href="/admin"
+                className="rounded-full border border-(--border) px-3 py-1 text-xs font-semibold text-(--app-fg)"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/admin/products"
+                className="rounded-full border border-(--border) px-3 py-1 text-xs font-semibold text-(--app-fg)"
+              >
+                Products
+              </Link>
+              <Link
+                href="/admin/orders"
+                className="rounded-full border border-(--border) px-3 py-1 text-xs font-semibold text-(--app-fg)"
+              >
+                Orders
+              </Link>
+            </div>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={toggleRole}
+            className="rounded-full border border-(--border) bg-(--surface-strong) px-3 py-1 text-xs font-semibold text-(--app-fg)"
+          >
+            {isAdmin ? "Admin" : "User"}
+          </button>
+
           <Button type="text" shape="circle" icon={<SearchOutlined />} />
           <Button type="text" shape="circle" icon={<HeartOutlined />} />
           <Badge count={totalItems} size="small" color="#0f6f63">
@@ -55,6 +152,88 @@ export default function Header() {
           />
         </div>
       </div>
+
+      {headerSections.length > 0 ? (
+        <div
+          className="relative hidden border-t border-(--border) bg-(--glass) backdrop-blur md:block"
+          onMouseLeave={() => setHoveredSectionId("")}
+        >
+          <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-2">
+            <div className="flex flex-wrap gap-3">
+              {headerSections.map((section) => {
+                const isActive = section.id === resolvedSectionId;
+                return (
+                  <button
+                    key={section.id}
+                    type="button"
+                    onMouseEnter={() => {
+                      setHoveredSectionId(section.id);
+                      const sectionData = headerSections.find((item) => item.id === section.id);
+                      setHoveredSubSection(sectionData?.subSections?.[0] ?? "");
+                    }}
+                    className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
+                      isActive
+                        ? "bg-(--surface-strong) text-(--app-fg)"
+                        : "text-(--muted) hover:bg-(--surface-strong)"
+                    }`}
+                  >
+                    {section.title}
+                  </button>
+                );
+              })}
+            </div>
+
+            {activeSection?.subSections?.length ? (
+              <div className="absolute left-0 right-0 top-full z-30 mt-1 px-4">
+                <div className="mx-auto grid w-full max-w-7xl overflow-hidden rounded-2xl border border-(--border) bg-(--surface) shadow-md md:grid-cols-[300px_1fr]">
+                  <div className="border-r border-(--border) bg-(--surface-strong) p-4">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-(--muted)">
+                      Categories
+                    </p>
+                    <div className="mt-3 space-y-1 pr-1 text-sm text-(--muted)">
+                      {visibleSubSections.map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onMouseEnter={() => setHoveredSubSection(item)}
+                          className={`block w-full truncate rounded-lg px-3 py-1.5 text-left leading-5 transition ${
+                            item === resolvedSubSection
+                              ? "bg-(--surface) text-(--app-fg)"
+                              : "hover:bg-(--surface) hover:text-(--app-fg)"
+                          }`}
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-5">
+                    <p className="text-2xl font-semibold text-(--app-fg)">
+                      {resolvedSubSection || activeSection.title}
+                    </p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.2em] text-(--muted)">
+                      {activeSection.title}
+                    </p>
+                    <div className="mt-3 space-y-2 text-sm text-(--muted)">
+                      {relatedSubSections.map((item) => (
+                        <p key={item} className="flex items-center gap-2 leading-5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-(--border)" />
+                          <span className="truncate">{item}</span>
+                        </p>
+                      ))}
+                    </div>
+                    <button className="mt-4 flex w-full items-center justify-between rounded-xl border border-(--border) bg-(--surface-strong) px-4 py-3 text-left text-sm font-semibold text-(--app-fg)">
+                      <span>View all items</span>
+                      <RightOutlined className="text-xs" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }
