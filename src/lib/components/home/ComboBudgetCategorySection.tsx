@@ -1,22 +1,57 @@
 import Image from "next/image";
-import type { ComboProduct } from "@/lib/types/storefront";
+import type { ComboProduct, ShopCardProduct } from "@/lib/types/storefront";
 import { WalletOutlined } from "@ant-design/icons";
+
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
 
 export default function ComboBudgetCategorySection({
   comboProducts,
   budgetFilters,
-  personalized,
-  corporate,
+  personalizedProducts,
+  corporateProducts,
 }: {
   comboProducts?: ComboProduct[];
   budgetFilters?: string[];
-  personalized?: string[];
-  corporate?: string[];
+  personalizedProducts?: ShopCardProduct[];
+  corporateProducts?: ShopCardProduct[];
 }) {
   const displayedComboProducts = comboProducts ?? [];
   const displayedBudgetFilters = budgetFilters ?? [];
-  const personalizedItems = personalized ?? [];
-  const corporateItems = corporate ?? [];
+  const displayedPersonalizedProducts = personalizedProducts ?? [];
+  const displayedCorporateProducts = corporateProducts ?? [];
+
+  const renderProductSlider = (items: ShopCardProduct[]) => (
+    <div
+      className="mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden"
+      style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
+    >
+      {items.map((item) => (
+        <article
+          key={item.id ?? item.title}
+          className="min-w-45 h-56 snap-start overflow-hidden rounded-xl border border-(--border) bg-(--surface-strong) md:min-w-55 md:h-64"
+        >
+          <div className="relative h-3/4">
+            <Image src={item.image} alt={item.title} fill className="object-cover" />
+          </div>
+          <div className="h-1/4 space-y-1 p-2 md:p-3">
+            <p className="truncate text-[10px] uppercase tracking-[0.16em] text-(--muted)">{item.category}</p>
+            <p className="line-clamp-1 text-xs font-semibold leading-4 text-(--app-fg) md:text-sm">{item.title}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-(--app-fg) md:text-sm">{formatPrice(item.price)}</span>
+              {item.strike ? (
+                <span className="text-xs text-(--muted) line-through">{formatPrice(item.strike)}</span>
+              ) : null}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
 
   return (
     <section className="reveal w-full space-y-5" data-reveal>
@@ -86,31 +121,13 @@ export default function ComboBudgetCategorySection({
           <div className="h-px flex-1 bg-(--border)" />
         </div>
         <div className="rounded-2xl border border-(--border) bg-(--surface) p-3 md:p-4">
-          <div className="mt-1 flex flex-wrap gap-2">
-          {personalizedItems.map((item) => (
-            <span
-              key={item}
-              className="rounded-full bg-(--surface-strong) px-4 py-2 text-xs uppercase tracking-wide text-(--muted)"
-            >
-              {item}
-            </span>
-          ))}
+          {renderProductSlider(displayedPersonalizedProducts)}
         </div>
-      </div>
       </div>
 
       <div className="rounded-2xl border border-(--border) bg-(--surface) p-3 md:p-4">
         <h3 className="text-xl font-semibold text-(--app-fg)">CORPORATE GIFTS</h3>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {corporateItems.map((item) => (
-            <span
-              key={item}
-              className="rounded-full bg-(--surface-strong) px-4 py-2 text-xs uppercase tracking-wide text-(--muted)"
-            >
-              {item}
-            </span>
-          ))}
-        </div>
+        {renderProductSlider(displayedCorporateProducts)}
       </div>
     </section>
   );
