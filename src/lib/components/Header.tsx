@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Badge, Button } from "antd";
 import {
   SearchOutlined,
@@ -26,19 +25,7 @@ export default function Header() {
   const headerSections = useMemo(() => data?.headerSections ?? [], [data?.headerSections]);
   const [hoveredSectionId, setHoveredSectionId] = useState("");
   const [hoveredSubSection, setHoveredSubSection] = useState("");
-  const [role, setRole] = useState<"admin" | "user">("user");
   const [isDesktopView, setIsDesktopView] = useState(false);
-  const isAdmin = role === "admin";
-
-  useEffect(() => {
-    const loadRole = async () => {
-      const response = await fetch("/api/auth/role", { cache: "no-store" });
-      const payload = (await response.json()) as { role?: "admin" | "user" };
-      setRole(payload.role === "admin" ? "admin" : "user");
-    };
-
-    void loadRole();
-  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 768px)");
@@ -53,19 +40,6 @@ export default function Header() {
       mediaQuery.removeEventListener("change", syncDesktopView);
     };
   }, []);
-
-  const toggleRole = async () => {
-    const nextRole = isAdmin ? "user" : "admin";
-    const response = await fetch("/api/auth/role", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role: nextRole }),
-    });
-
-    if (response.ok) {
-      setRole(nextRole);
-    }
-  };
 
   const resolvedSectionId =
     headerSections.some((item) => item.id === hoveredSectionId)
@@ -121,37 +95,6 @@ export default function Header() {
             theme === "dark" ? "text-white" : "text-(--muted)"
           }`}
         >
-          {isAdmin ? (
-            <div className="hidden items-center gap-2 lg:flex">
-              <Link
-                href="/admin"
-                className="rounded-full border border-(--border) px-3 py-1 text-xs font-semibold text-(--app-fg)"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/admin/products"
-                className="rounded-full border border-(--border) px-3 py-1 text-xs font-semibold text-(--app-fg)"
-              >
-                Products
-              </Link>
-              <Link
-                href="/admin/orders"
-                className="rounded-full border border-(--border) px-3 py-1 text-xs font-semibold text-(--app-fg)"
-              >
-                Orders
-              </Link>
-            </div>
-          ) : null}
-
-          <button
-            type="button"
-            onClick={toggleRole}
-            className="rounded-full border border-(--border) bg-(--surface-strong) px-3 py-1 text-xs font-semibold text-(--app-fg)"
-          >
-            {isAdmin ? "Admin" : "User"}
-          </button>
-
           <Button type="text" shape="circle" icon={<SearchOutlined />} />
           <Button type="text" shape="circle" icon={<HeartOutlined />} />
           <Badge count={totalItems} size="small" color="#0f6f63">
