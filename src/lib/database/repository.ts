@@ -246,6 +246,23 @@ export const getStorefrontData = async (): Promise<StorefrontResponse> => {
     .map((item) => String(item.name ?? ""))
     .filter(Boolean);
 
+  const personalizedCategorySet = new Set(
+    personalizedCategories.map((item) => normalizeText(item))
+  );
+  const corporateCategorySet = new Set(
+    corporateCategories.map((item) => normalizeText(item))
+  );
+
+  const personalizedProducts = products
+    .filter((item) => personalizedCategorySet.has(normalizeText(item.category)))
+    .slice(0, 10)
+    .map((item) => toShopCard(item, fallbackImage));
+
+  const corporateProducts = products
+    .filter((item) => corporateCategorySet.has(normalizeText(item.category)))
+    .slice(0, 10)
+    .map((item) => toShopCard(item, fallbackImage));
+
   const occasionChips = sortedOccasions
     .map((item) => String(item.name ?? "").trim())
     .filter(Boolean)
@@ -495,6 +512,10 @@ export const getStorefrontData = async (): Promise<StorefrontResponse> => {
     budgetFilters,
     personalizedCategories,
     corporateCategories,
+    personalizedProducts:
+      personalizedProducts.length > 0 ? personalizedProducts : fallbackProducts,
+    corporateProducts:
+      corporateProducts.length > 0 ? corporateProducts : fallbackProducts,
     trendingProducts:
       trendingProducts.length > 0 ? trendingProducts : fallbackProducts,
     bestSellerProducts:

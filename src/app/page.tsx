@@ -30,8 +30,8 @@ export default function Home() {
   const dynamicBudgetFilters = data?.budgetFilters;
   const dynamicTrending = data?.trendingProducts;
   const dynamicBestSellers = data?.bestSellerProducts;
-  const dynamicPersonalized = data?.personalizedCategories;
-  const dynamicCorporate = data?.corporateCategories;
+  const dynamicPersonalizedProducts = data?.personalizedProducts;
+  const dynamicCorporateProducts = data?.corporateProducts;
 
   return (
     <div className="flex flex-col">
@@ -69,8 +69,8 @@ export default function Home() {
         <ComboBudgetCategorySection
           comboProducts={dynamicComboProducts}
           budgetFilters={dynamicBudgetFilters}
-          personalized={dynamicPersonalized ?? []}
-          corporate={dynamicCorporate ?? []}
+          personalizedProducts={dynamicPersonalizedProducts ?? []}
+          corporateProducts={dynamicCorporateProducts ?? []}
         />
       </div>
       <GiftFooter info={dynamicFooterInfo} />

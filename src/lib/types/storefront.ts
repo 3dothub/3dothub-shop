@@ -80,6 +80,8 @@ export type StorefrontResponse = {
   budgetFilters: string[];
   personalizedCategories: string[];
   corporateCategories: string[];
+  personalizedProducts: ShopCardProduct[];
+  corporateProducts: ShopCardProduct[];
   trendingProducts: ShopCardProduct[];
   bestSellerProducts: ShopCardProduct[];
 };
